@@ -44,11 +44,11 @@ export default function TeamsPage() {
   const currentTeam = teamQ.data?.team ?? null;
 
   const matchRows = useMemo(() => {
-    return (teamQ.data?.matches ?? matchesQ.data ?? []).slice().sort((a, b) => (a.matchNumber ?? 0) - (b.matchNumber ?? 0));
+    return (teamQ.data?.matches ?? matchesQ.data ?? []).slice().sort((a: any, b: any) => (a.matchNumber ?? 0) - (b.matchNumber ?? 0));
   }, [teamQ.data?.matches, matchesQ.data]);
 
   const enabledTeamFields = useMemo(() => {
-    return (fieldsQ.data ?? []).filter((f) => (f.enabled ?? 1) === 1);
+    return (fieldsQ.data ?? []).filter((f: any) => (f.enabled ?? 1) === 1);
   }, [fieldsQ.data]);
 
   const syncFromServerToForm = () => {
@@ -245,7 +245,7 @@ export default function TeamsPage() {
                             {enabledTeamFields.length === 0 ? (
                               <p className="text-sm text-muted-foreground">尚無啟用欄位。</p>
                             ) : (
-                              enabledTeamFields.map((f) => {
+                              enabledTeamFields.map((f: any) => {
                                 const v = (currentTeam?.values as any)?.[f.key];
                                 return (
                                   <div key={f.id} className="flex items-start justify-between gap-3 rounded-xl border border-border/70 bg-background/40 px-3 py-2.5">
@@ -286,7 +286,7 @@ export default function TeamsPage() {
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
-                                {matchRows.map((m) => (
+                                {matchRows.map((m: any) => (
                                   <TableRow key={m.id}>
                                     <TableCell className="font-display">第 {m.matchNumber} 場</TableCell>
                                     <TableCell className="hidden md:table-cell">

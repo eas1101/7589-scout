@@ -31,8 +31,8 @@ export default function ComparePage() {
 
   const allFields = useMemo(() => {
     const merged = [
-      ...(teamFieldsQ.data ?? []).map((f) => ({ ...f, _scope: "team" as const })),
-      ...(matchFieldsQ.data ?? []).map((f) => ({ ...f, _scope: "match" as const })),
+      ...(teamFieldsQ.data ?? []).map((f: any) => ({ ...f, _scope: "team" as const })),
+      ...(matchFieldsQ.data ?? []).map((f: any) => ({ ...f, _scope: "match" as const })),
     ];
     return merged.filter((f) => (f.enabled ?? 1) === 1 && (f.inputType === "grade" || f.inputType === "number"));
   }, [teamFieldsQ.data, matchFieldsQ.data]);

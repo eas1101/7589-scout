@@ -48,14 +48,14 @@ export default function AnalyticsPage() {
 
   const allFields = useMemo(() => {
     const merged = [
-      ...(teamFieldsQ.data ?? []).map((f) => ({ ...f, _scope: "team" as const })),
-      ...(matchFieldsQ.data ?? []).map((f) => ({ ...f, _scope: "match" as const })),
+      ...(teamFieldsQ.data ?? []).map((f: any) => ({ ...f, _scope: "team" as const })),
+      ...(matchFieldsQ.data ?? []).map((f: any) => ({ ...f, _scope: "match" as const })),
     ];
     return merged.filter((f) => (f.enabled ?? 1) === 1);
   }, [teamFieldsQ.data, matchFieldsQ.data]);
 
   const numericEligible = useMemo(() => {
-    return allFields.filter((f) => f.inputType === "number" || f.inputType === "grade");
+    return allFields.filter((f: any) => f.inputType === "number" || f.inputType === "grade");
   }, [allFields]);
 
   const [barFieldKey, setBarFieldKey] = useState<string>("");
@@ -70,9 +70,9 @@ export default function AnalyticsPage() {
     const k = barField.key;
     const col = barField._scope === "team" ? "teamAverages" : "matchAverages";
     return list
-      .map((r) => ({ teamNumber: r.teamNumber, value: (r as any)[col]?.[k] ?? null }))
-      .filter((x) => x.value != null)
-      .sort((a, b) => (b.value as number) - (a.value as number))
+      .map((r: any) => ({ teamNumber: r.teamNumber, value: (r as any)[col]?.[k] ?? null }))
+      .filter((x: any) => x.value != null)
+      .sort((a: any, b: any) => (b.value as number) - (a.value as number))
       .slice(0, 24);
   }, [aggregateQ.data, barField]);
 
@@ -84,15 +84,15 @@ export default function AnalyticsPage() {
 
     return matches
       .slice()
-      .sort((a, b) => (a.matchNumber ?? 0) - (b.matchNumber ?? 0))
-      .map((m) => {
+      .sort((a: any, b: any) => (a.matchNumber ?? 0) - (b.matchNumber ?? 0))
+      .map((m: any) => {
         const raw = (m.values as any)?.[k];
         let v: number | null = null;
         if (lineField.inputType === "number") v = typeof raw === "number" ? raw : raw == null ? null : Number(raw);
         if (lineField.inputType === "grade") v = typeof raw === "string" ? gradeToNumber(raw, rule.weights) : null;
         return { matchNumber: m.matchNumber, value: v };
       })
-      .filter((x) => Number.isFinite(x.matchNumber));
+      .filter((x: any) => Number.isFinite(x.matchNumber));
   }, [teamFullQ.data?.matches, teamNumber, lineField]);
 
   return (
@@ -297,8 +297,8 @@ export default function AnalyticsPage() {
                 <div className="mt-4 grid gap-2">
                   {(teamFullQ.data?.matches ?? [])
                     .slice()
-                    .sort((a, b) => (a.matchNumber ?? 0) - (b.matchNumber ?? 0))
-                    .map((m) => (
+                    .sort((a: any, b: any) => (a.matchNumber ?? 0) - (b.matchNumber ?? 0))
+                    .map((m: any) => (
                       <div
                         key={m.id}
                         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border border-border/70 bg-background/40 px-3 py-2.5"

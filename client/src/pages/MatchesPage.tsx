@@ -56,12 +56,12 @@ export default function MatchesPage() {
 
   const rows = useMemo(() => {
     const list = listQ.data ?? [];
-    return list.slice().sort((a, b) => (a.matchNumber ?? 0) - (b.matchNumber ?? 0));
+    return list.slice().sort((a: any, b: any) => (a.matchNumber ?? 0) - (b.matchNumber ?? 0));
   }, [listQ.data]);
 
   const selectFromList = (mn: number) => {
     setMatchInput(String(mn));
-    const found = rows.find((r) => r.matchNumber === mn);
+    const found = rows.find((r: any) => r.matchNumber === mn);
     setValues({ ...(found?.values as any) });
     toast({ title: "已載入", description: `已載入第 ${mn} 場資料到表單` });
   };
@@ -211,7 +211,7 @@ export default function MatchesPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {rows.map((r) => (
+                        {rows.map((r: any) => (
                           <TableRow key={r.id} className={r.matchNumber === matchNumber ? "bg-primary/6" : ""}>
                             <TableCell className="font-display">第 {r.matchNumber} 場</TableCell>
                             <TableCell className="text-right">

@@ -33,7 +33,7 @@ export default function ScoringFieldEditor({ scope }: { scope: "team" | "match" 
 
   const fields = useMemo(() => {
     const list = (data ?? []).slice();
-    list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || a.id - b.id);
+    list.sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0) || a.id - b.id);
     return list;
   }, [data]);
 
@@ -274,7 +274,7 @@ export default function ScoringFieldEditor({ scope }: { scope: "team" | "match" 
           </div>
         ) : (
           <div className="grid gap-3">
-            {fields.map((f) => (
+            {fields.map((f: any) => (
               <FieldRow
                 key={f.id}
                 field={f}
