@@ -1,36 +1,44 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@shared/routes";
-import { z } from "zod";
 
-function parseWithLogging<T>(schema: z.ZodSchema<T>, data: unknown, label: string): T {
-  const result = schema.safeParse(data);
-  if (!result.success) {
-    console.error(`[Zod] ${label} 驗證失敗:`, result.error.format());
-    throw result.error;
-  }
-  return result.data;
+const LS_KEY = "frc_scout_data";
+
+function getLocalData() {
+  const raw = localStorage.getItem(LS_KEY);
+  return raw ? JSON.parse(raw) : { settings: null, fields: [], teams: {}, matches: {} };
+}
+
+function saveLocalData(data: any) {
+  localStorage.setItem(LS_KEY, JSON.stringify(data));
 }
 
 export function useExportAllToSheets() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch(api.sheets.exportAll.path, {
-        method: api.sheets.exportAll.method,
-        credentials: "include",
-      });
-      if (!res.ok) {
-        if (res.status === 400) {
-          const err = parseWithLogging(api.sheets.exportAll.responses[400], await res.json(), "sheets.export.400");
-          throw new Error(err.message);
-        }
-        throw new Error("匯出到試算表失敗");
+      const local = getLocalData();
+      const settings = local.settings;
+      if (!settings?.sheetsEndpointUrl) {
+        throw new Error("請先在設定頁面填寫 Apps Script URL");
       }
-      return parseWithLogging(api.sheets.exportAll.responses[200], await res.json(), "sheets.export.200");
-    },
-    onSuccess: () => {
-      qc.invalidateQueries();
-    },
+
+      // Convert local state to a format Apps Script expects
+      const payload = {
+        action: "export",
+        token: settings.apiToken,
+        data: local
+      };
+
+      const res = await fetch(settings.sheetsEndpointUrl, {
+        method: "POST",
+        mode: "no-cors", // Apps Script often requires no-cors for simple POST
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      
+      // Note: with no-cors we can't read the response body, 
+      // but the data is sent. For real feedback, one would use JSONP or a proxy.
+      return { ok: true };
+    }
   });
 }
 
@@ -38,21 +46,23 @@ export function useImportAllFromSheets() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch(api.sheets.importAll.path, {
-        method: api.sheets.importAll.method,
-        credentials: "include",
-      });
-      if (!res.ok) {
-        if (res.status === 400) {
-          const err = parseWithLogging(api.sheets.importAll.responses[400], await res.json(), "sheets.import.400");
-          throw new Error(err.message);
-        }
-        throw new Error("從試算表匯入失敗");
+      const local = getLocalData();
+      const settings = local.settings;
+      if (!settings?.sheetsEndpointUrl) {
+        throw new Error("請先在設定頁面填寫 Apps Script URL");
       }
-      return parseWithLogging(api.sheets.importAll.responses[200], await res.json(), "sheets.import.200");
+
+      const res = await fetch(`${settings.sheetsEndpointUrl}?action=import&token=${encodeURIComponent(settings.apiToken || "")}`);
+      if (!res.ok) throw new Error("從試算表讀取失敗");
+      
+      const remoteData = await res.json();
+      if (remoteData) {
+        saveLocalData({ ...local, ...remoteData });
+      }
+      return { ok: true };
     },
     onSuccess: () => {
       qc.invalidateQueries();
-    },
+    }
   });
 }
